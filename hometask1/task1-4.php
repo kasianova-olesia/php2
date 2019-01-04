@@ -5,10 +5,11 @@
     <title>Document</title>
 </head>
 <body>
-   <?php
+  <?php
 
 
-class Product{
+class Product
+{
     public $id;
     public $article;
     public $category;
@@ -17,11 +18,10 @@ class Product{
     public $size;
     public $price;
     public $country;
-    
+    public $count;
 
-    public function __construct($id = null, $article = null, $category = null, $title = null, $description = null, $size = null, $price = null, $country = null)
+    public function __construct($article, $category, $title, $description, $size, $price, $country, $count)
     {
-        $this->id = $id;
         $this->article = $article;
         $this->category = $category;
         $this->title = $title;
@@ -29,96 +29,87 @@ class Product{
         $this->size = $size;
         $this->price = $price;
         $this->country = $country;
-       
-    }
-
-    public function view(){
-        echo $this->newArticle() . $this->newCategory() . $this->newTitle() . $this->newDescription() . $this->newSize() . $this->newPrice() . $this->newCountry();
-    }
-    
-    public function newArticle()
-    {
-        return "<b>Артикул:</b> $this->article<br>";
-    }
-    
-    public function newCategory()
-    {
-        return "<b>Категория:</b> $this->category<br>";
-    }
-    
-    public function newTitle()
-    {
-        return "<b>Наименование:</b> $this->title<br>";
-    }
-    public function newDescription()
-    {
-        return "<b>Описание:</b> $this->description<br>";
-    }
-    public function newSize()
-    {
-        return "<b>Размер:</b> $this->size<br>";
-    }
-    public function newPrice()
-    {
-        return "<b>Цена:</b> $this->price руб.<br>";
-    }
-    public function newCountry()
-    {
-        return "<b>Страна-производитель:</b> $this->country<br>";
-    }
-    
-    
-     public function setId($id)
-    {
-        $this->id = $id;
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-      
-}
-class Good2 extends Product{
-    
-    public function __construct($id = null, $article = null, $category = null, $title = null, $description = null, $size = null, $price = null, $country = null)
-    {
-        parent::__construct($id, $article, $category, $title, $description, $size, $price, $country);
         $this->count = $count;
     }
 
+    public function view()
+    {
+        echo "
+            <b>Артикул:</b> $this->article<br>
+            <b>Категория:</b> $this->category<br>
+            <b>Наименование:</b> $this->title<br>
+            <b>Описание:</b> $this->description<br>
+            <b>Размер:</b> $this->size<br>
+            <b>Цена:</b> $this->price руб.<br>
+            <b>Страна-производитель:</b> $this->country<br>
+            <b>Количество на складе:</b> $this->count шт.<br>
+        ";
+    }
+
+    // Списание товара со склада
+    public function removeFromStock($number)
+    {
+        echo "<hr><h2>Списание со склада</h2>";
+        if (($this->count - $number) < 0) {
+            echo "<b>Недостаточное количество товара на складе для списания: $number шт.!</b><br>";
+        } else {
+            $this->count -= $number;
+            echo "<b>Списание товара $this->title в количестве $number шт. выполнено успешно!</b><br>";
+        }
+        echo "<b>Остаток на складе:</b> $this->count шт.<br>";
+    }
+
+}
+
+// Уцененый товар (брак, не комплект)
+class Discount extends Product
+{
+    public $state;
+    public $complete;
+    public $package;
+    public $reason;
+
+    function __construct($article, $category, $title, $description, $size, $price, $guarantee, $country, $count,
+                         $state, $complete, $package, $reason)
+    {
+        parent::__construct($article, $category, $title, $description, $size, $price, $guarantee, $country, $count);
+        $this->state = $state;
+        $this->complete = $complete;
+        $this->package = $package;
+        $this->reason = $reason;
+    }
 
     public function view()
     {
         parent::view();
-        $this->viewCount();
-    }
-
-    public function viewCount()
-    {
-        echo "<p>{$this->count}</p>";
+        echo "
+            <b>Состояние:</b> $this->state<br>
+            <b>Комплектация:</b> $this->complete<br>
+            <b>Состояние упаковки:</b> $this->package<br>
+            <b>Причина уценки:</b> $this->reason<br>
+        ";
     }
 }
 
- 
-$good1 = new Product(1, 0000101, "Платья", "Платье, Just Cavalli",
+/*Стандартный товар*/
+$good1 = new Product(0000101, "Платья", "Платье, Just Cavalli",
     "Замечательное дизайнерское платье. Модель сочетает в себе нотки авангарда и этнического стиля. Рукава платья короткие, прямой крой. Вырез горловины округлый. Универсальная расцветка с декором в виде бисера.",
-    "42", "89000", "Италия");
+    "42", 89000, "Италия", 12,  "7");
 $good1->view();
+$good1->removeFromStock(10);
+$good1->removeFromStock(2);
 
-echo '<hr>';
-
-$good2 = new Good2(2, 000114, "Платья", "Платье, Lisa Campione",
+/*Уцененный товар*/
+$good2 = new Discount(000114, "Платья", "Платье, Lisa Campione",
     "Великолепное платье с округлым вырезом горловины. Сзади удобная застежка на молнию. Прекрасный вариант для модных женщин, желающих подчеркнуть свою индивидуальность и хороший вкус.",
-    "48", "60500", "Италия", "5");
+    48, 60500, "Италия", 2, 2,
+    "Оторвана молния", "полная", "отличное", "заменена молния");
 $good2->view();
+$good2->removeFromStock(3);
+$good2->removeFromStock(1);
 
-echo '<hr>';
 var_dump($good1);
-echo '<hr>';    
-
-var_dump($good2); 
-    
-?>    
+var_dump($good2);  
+    ?>
 </body>
 </html>
