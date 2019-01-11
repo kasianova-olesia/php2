@@ -1,0 +1,12 @@
+{
+    "name": "user/hometask5",
+    "authors": [
+        {
+            "name": "Olesia Kasianova",
+            "email": "kas.olesia@gmail.com"
+        }
+    ],
+    "require": {
+      "twig/twig" : "*"
+    }
+}
